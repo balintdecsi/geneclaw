@@ -62,6 +62,17 @@ const TelegramChat = () => {
         <p className="text-xs text-muted-foreground/60 font-mono">
           @geneclaw_vienna_bot
         </p>
+
+        {/* Credentials callout */}
+        <div className="w-full max-w-xs rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-center space-y-1">
+          <p className="text-xs font-mono text-primary font-bold">📋 Demo Genetics Report</p>
+          <a href="https://geno-health-portal.lovable.app/" target="_blank" rel="noopener noreferrer" className="text-xs font-mono text-foreground underline underline-offset-2 hover:text-primary transition-colors break-all">
+            geno-health-portal.lovable.app
+          </a>
+          <p className="text-xs font-mono text-muted-foreground">
+            User: <span className="text-foreground font-bold">USER</span> &nbsp;|&nbsp; Pass: <span className="text-foreground font-bold">PASS</span>
+          </p>
+        </div>
       </div>
     </div>
   );
