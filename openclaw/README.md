@@ -2,6 +2,18 @@
 
 This folder holds **agent skills** and references used with OpenClaw / Cursor-style agents for the GeneClaw Telegram symptom follow-up flow. Use it as the canonical source in the repo for demos and hackathon submissions.
 
+## Maritime (OpenClaw host)
+
+The production-style agent runs on **[Maritime](https://maritime.sh/docs)** — use their docs for workspace setup, agent configuration, secrets, and run history in the dashboard.
+
+**Hackathon checklist (high level):**
+
+1. Create or connect a Git-backed **OpenClaw workspace** (paths like `/home/node/.openclaw/workspace/` on the host map to your repository contents).
+2. Point the agent at the skill under `openclaw/skills/telegram-symptom-followup/` (see **Layout** below).
+3. Enable **cron** (or Maritime’s scheduler) so follow-up rounds fire on a schedule; each run should send Telegram messages, update `data/symptom-users/<telegram_user_id>.json`, and (if enabled) commit workspace changes — see **Cron reminders** below for a real **dashboard log** example.
+
+For the rest of the GeneClaw stack (Lovable app, ElevenLabs voice, Supabase Telegram function), see the [root README](../README.md).
+
 ## Layout
 
 | Path | Purpose |
