@@ -85,22 +85,23 @@ const TelegramChat = () => {
           <MessageSquare className="w-10 h-10 text-primary mx-auto" />
           <h3 className="font-mono text-foreground">Connect to Telegram</h3>
           <p className="text-sm text-muted-foreground">
-            Enter your Telegram Chat ID to start messaging the OpenClaw agent.
+            Enter your Telegram Chat ID (numeric). Message <span className="text-primary font-mono">@userinfobot</span> on Telegram to find yours.
           </p>
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              if (chatId.trim()) setShowChatIdInput(false);
+              if (chatId.trim() && /^\-?\d+$/.test(chatId.trim())) setShowChatIdInput(false);
             }}
             className="space-y-3"
           >
             <Input
               value={chatId}
-              onChange={(e) => setChatId(e.target.value)}
-              placeholder="Chat ID (e.g. 123456789)"
-              className="bg-secondary border-border text-foreground placeholder:text-muted-foreground text-center"
+              onChange={(e) => setChatId(e.target.value.replace(/[^\d\-]/g, ""))}
+              placeholder="e.g. 123456789"
+              className="bg-secondary border-border text-foreground placeholder:text-muted-foreground text-center font-mono"
+              inputMode="numeric"
             />
-            <Button type="submit" disabled={!chatId.trim()} className="w-full">
+            <Button type="submit" disabled={!chatId.trim() || !/^\-?\d+$/.test(chatId.trim())} className="w-full">
               Connect
             </Button>
           </form>
