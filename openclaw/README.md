@@ -27,6 +27,41 @@ Skills follow the usual layout: one directory per skill with a `SKILL.md` file a
 
 Any OpenClaw-compatible runner that loads markdown skills with YAML frontmatter can point at `openclaw/skills/*/SKILL.md` and resolve relative `references/` paths from that file’s directory.
 
+## Cron reminders
+
+The agent that runs this workflow is set up to use **cron jobs (or an equivalent scheduler)** so each enrolled user gets follow-ups on a cadence (e.g. the next screening round) without relying on the user to message first. Each run typically:
+
+- Sends the appropriate round check-in to the user’s Telegram chat
+- Updates the per-user state file under `data/symptom-users/<telegram_user_id>.json`
+- Records timing and outbound message metadata (`askedAt`, Telegram `messageId`, round status)
+- Commits workspace changes when the runner is configured to track the workspace in git
+
+Dashboards (for example a **maritime operations / run log UI**) surface these runs as structured summaries. Example log line from one such dashboard:
+
+```
+Telegram symptom follow-up for Negar · OK
+Sent Round 2 follow-up to Telegram user 1316506403 (@Khavidak_97) in the Telegram chat.
+
+What I sent:
+A brief Round 2 check-in
+The 3 core yes/no screening questions
+A short urgent-care warning for emergency symptoms
+
+State update:
+Updated /home/node/.openclaw/workspace/data/symptom-users/1316506403.json
+Advanced workflow to currentRound: 2
+Marked Round 2 as pending
+Stored askedAt: 2026-03-28T02:22:00Z
+Stored Telegram messageId: 36
+
+Repo:
+Committed the workspace change: Update Negar symptom screening round 2 state
+
+No conclusion was given. No doctor lookup was started.
+```
+
+Paths like `/home/node/.openclaw/workspace/` reflect the deployed OpenClaw workspace; in development they map to your local clone (the skill still expects `data/symptom-users/` relative to that workspace).
+
 ## Product context
 
 GeneClaw combines genetic risk context with longitudinal symptom check-ins over Telegram. The skill encodes **non-diagnostic** screening behavior, **emergency red-flag** handling, and **Austria/Vienna** specialist lookup guidance (e.g. DocFinder, specialty names in German).

@@ -6,7 +6,9 @@ description: >-
   restarting a user into the workflow, when asking or recording Round 1–5 answers,
   when handling emergency red-flag symptom replies, when creating or continuing
   per-user schedules/state under data/symptom-users, or when concluding after Round 5
-  and finding Vienna/Austria specialists on DocFinder.
+  and finding Vienna/Austria specialists on DocFinder. Also use when a cron or
+  scheduled job sends the next round follow-up, updates data/symptom-users state,
+  or logs a dashboard summary for a symptom screening run.
 ---
 
 # Telegram Symptom Follow-up
@@ -24,6 +26,16 @@ Run the Telegram symptom workflow as a **per-user, per-chat longitudinal screeni
 4. Create or continue a **per-user state file** under `data/symptom-users/<sender_id>.json`.
 5. Create or continue that user’s own reminder/schedule entry; do not reuse a shared schedule.
 6. Keep all future reminders, follow-ups, and specialist lookup in the **same Telegram chat**.
+
+## Scheduled follow-ups (cron)
+
+The live agent uses **cron (or equivalent schedulers)** to remind users between rounds. When a job runs for a user who is still in the workflow:
+
+- Send the next round’s check-in in Telegram (brief intro, the **3 core yes/no questions**, plus the **emergency-symptoms** warning).
+- Update `data/symptom-users/<sender_id>.json`: `currentRound`, per-round status (e.g. pending), `askedAt`, and the outbound Telegram `messageId` when available.
+- Do **not** conclude early or start doctor lookup unless Round 5 is complete and the pattern warrants it (same rules as interactive chat).
+
+If the environment commits workspace changes, record a clear commit message for the state update. See `openclaw/README.md` for an example dashboard log of a cron-driven Round 2 send.
 
 ## Round behavior
 
