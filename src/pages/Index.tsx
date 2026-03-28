@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { MessageSquare, Mic, User, Dna } from "lucide-react";
 import geneClawLogo from "@/assets/geneclaw-logo.png";
+import geneClawTitle from "@/assets/geneclaw-title.png";
 import TelegramChat from "@/components/TelegramChat";
 import VoiceAgent from "@/components/VoiceAgent";
 import RecentReports from "@/components/RecentReports";
@@ -24,10 +25,7 @@ const Index = () => {
       <header className="relative z-10 flex items-center justify-between px-6 py-3 border-b border-border/50">
         <div className="flex items-center gap-3">
           <img src={geneClawLogo} alt="GeneClaw" className="h-10 w-10 object-contain" />
-          <span className="font-mono text-lg tracking-tight">
-            <span className="text-primary text-glow font-bold">Gene</span>
-            <span className="text-foreground font-bold">Claw</span>
-          </span>
+          <img src={geneClawTitle} alt="GeneClaw" className="h-8 object-contain" />
         </div>
 
         {/* User persona */}
