@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Send, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
   id: string;
@@ -15,13 +16,20 @@ const TelegramChat = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      text: "Hello! I'm the OpenClaw agent. Ask me anything about maritime or genomics.",
+      text: "Hello! I'm the OpenClaw agent. Send me a message to get started.",
       sender: "bot",
       timestamp: new Date(),
     },
   ]);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [chatId, setChatId] = useState<string>("");
+  const [showChatIdInput, setShowChatIdInput] = useState(true);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages]);
 
   const sendMessage = async () => {
     if (!input.trim() || isSending) return;
@@ -34,23 +42,72 @@ const TelegramChat = () => {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    const messageText = input;
     setInput("");
     setIsSending(true);
 
-    // TODO: Wire up to Telegram bot via edge function
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabase.functions.invoke("telegram-chat", {
+        body: { action: "send", chatId, text: messageText },
+      });
+
+      if (error) throw error;
+
       setMessages((prev) => [
         ...prev,
         {
           id: (Date.now() + 1).toString(),
-          text: "Telegram integration is being configured. Your message will be routed through the OpenClaw agent soon.",
+          text: "Message sent to OpenClaw agent via Telegram. Awaiting response...",
           sender: "bot",
           timestamp: new Date(),
         },
       ]);
+    } catch (err) {
+      console.error("Send error:", err);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          text: "Failed to send message. Please check your configuration.",
+          sender: "bot",
+          timestamp: new Date(),
+        },
+      ]);
+    } finally {
       setIsSending(false);
-    }, 1000);
+    }
   };
+
+  if (showChatIdInput) {
+    return (
+      <div className="flex flex-col h-[480px] rounded-xl border border-border bg-card overflow-hidden items-center justify-center p-8">
+        <div className="space-y-4 text-center max-w-sm">
+          <MessageSquare className="w-10 h-10 text-primary mx-auto" />
+          <h3 className="font-mono text-foreground">Connect to Telegram</h3>
+          <p className="text-sm text-muted-foreground">
+            Enter your Telegram Chat ID to start messaging the OpenClaw agent.
+          </p>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (chatId.trim()) setShowChatIdInput(false);
+            }}
+            className="space-y-3"
+          >
+            <Input
+              value={chatId}
+              onChange={(e) => setChatId(e.target.value)}
+              placeholder="Chat ID (e.g. 123456789)"
+              className="bg-secondary border-border text-foreground placeholder:text-muted-foreground text-center"
+            />
+            <Button type="submit" disabled={!chatId.trim()} className="w-full">
+              Connect
+            </Button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-[480px] rounded-xl border border-border bg-card overflow-hidden">
@@ -62,7 +119,7 @@ const TelegramChat = () => {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.map((msg, i) => (
           <motion.div
             key={msg.id}
@@ -83,17 +140,10 @@ const TelegramChat = () => {
           </motion.div>
         ))}
         {isSending && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex justify-start"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
             <div className="bg-secondary text-secondary-foreground px-4 py-2.5 rounded-2xl rounded-bl-md text-sm">
-              <motion.span
-                animate={{ opacity: [0.3, 1, 0.3] }}
-                transition={{ duration: 1.2, repeat: Infinity }}
-              >
-                typing...
+              <motion.span animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity }}>
+                sending...
               </motion.span>
             </div>
           </motion.div>
@@ -115,12 +165,7 @@ const TelegramChat = () => {
             placeholder="Type a message..."
             className="flex-1 bg-secondary border-border text-foreground placeholder:text-muted-foreground"
           />
-          <Button
-            type="submit"
-            size="icon"
-            disabled={!input.trim() || isSending}
-            className="shrink-0"
-          >
+          <Button type="submit" size="icon" disabled={!input.trim() || isSending} className="shrink-0">
             <Send className="w-4 h-4" />
           </Button>
         </form>
