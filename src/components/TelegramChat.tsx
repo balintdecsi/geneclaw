@@ -1,115 +1,10 @@
-import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Send, MessageSquare } from "lucide-react";
+import { MessageSquare, ExternalLink, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
 
-interface Message {
-  id: string;
-  text: string;
-  sender: "user" | "bot";
-  timestamp: Date;
-}
+const TELEGRAM_BOT_URL = "https://t.me/geneclaw_vienna_bot";
 
 const TelegramChat = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "welcome",
-      text: "Hello! I'm the OpenClaw agent. Send me a message to get started.",
-      sender: "bot",
-      timestamp: new Date(),
-    },
-  ]);
-  const [input, setInput] = useState("");
-  const [isSending, setIsSending] = useState(false);
-  const [chatId, setChatId] = useState<string>("");
-  const [showChatIdInput, setShowChatIdInput] = useState(true);
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages]);
-
-  const sendMessage = async () => {
-    if (!input.trim() || isSending) return;
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: input,
-      sender: "user",
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    const messageText = input;
-    setInput("");
-    setIsSending(true);
-
-    try {
-      const { data, error } = await supabase.functions.invoke("telegram-chat", {
-        body: { action: "send", chatId, text: messageText },
-      });
-
-      if (error) throw error;
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          text: "Message sent to OpenClaw agent via Telegram. Awaiting response...",
-          sender: "bot",
-          timestamp: new Date(),
-        },
-      ]);
-    } catch (err) {
-      console.error("Send error:", err);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          text: "Failed to send message. Please check your configuration.",
-          sender: "bot",
-          timestamp: new Date(),
-        },
-      ]);
-    } finally {
-      setIsSending(false);
-    }
-  };
-
-  if (showChatIdInput) {
-    return (
-      <div className="flex flex-col h-[480px] rounded-xl border border-border bg-card overflow-hidden items-center justify-center p-8">
-        <div className="space-y-4 text-center max-w-sm">
-          <MessageSquare className="w-10 h-10 text-primary mx-auto" />
-          <h3 className="font-mono text-foreground">Connect to Telegram</h3>
-          <p className="text-sm text-muted-foreground">
-            Enter your Telegram Chat ID (numeric). Message <span className="text-primary font-mono">@userinfobot</span> on Telegram to find yours.
-          </p>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (chatId.trim() && /^\-?\d+$/.test(chatId.trim())) setShowChatIdInput(false);
-            }}
-            className="space-y-3"
-          >
-            <Input
-              value={chatId}
-              onChange={(e) => setChatId(e.target.value.replace(/[^\d\-]/g, ""))}
-              placeholder="e.g. 123456789"
-              className="bg-secondary border-border text-foreground placeholder:text-muted-foreground text-center font-mono"
-              inputMode="numeric"
-            />
-            <Button type="submit" disabled={!chatId.trim() || !/^\-?\d+$/.test(chatId.trim())} className="w-full">
-              Connect
-            </Button>
-          </form>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col h-[480px] rounded-xl border border-border bg-card overflow-hidden">
       {/* Header */}
@@ -119,57 +14,54 @@ const TelegramChat = () => {
         <MessageSquare className="w-4 h-4 text-muted-foreground ml-auto" />
       </div>
 
-      {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
-        {messages.map((msg, i) => (
-          <motion.div
-            key={msg.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 }}
-            className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
-          >
-            <div
-              className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm ${
-                msg.sender === "user"
-                  ? "bg-primary text-primary-foreground rounded-br-md"
-                  : "bg-secondary text-secondary-foreground rounded-bl-md"
-              }`}
-            >
-              {msg.text}
-            </div>
-          </motion.div>
-        ))}
-        {isSending && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
-            <div className="bg-secondary text-secondary-foreground px-4 py-2.5 rounded-2xl rounded-bl-md text-sm">
-              <motion.span animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity }}>
-                sending...
-              </motion.span>
-            </div>
-          </motion.div>
-        )}
-      </div>
-
-      {/* Input */}
-      <div className="p-3 border-t border-border">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            sendMessage();
-          }}
-          className="flex gap-2"
+      {/* Content */}
+      <div className="flex-1 flex flex-col items-center justify-center p-8 space-y-6">
+        {/* Animated bot icon */}
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="relative"
         >
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1 bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+          <div className="w-20 h-20 rounded-full bg-secondary border-2 border-primary/30 flex items-center justify-center glow-green-sm">
+            <Send className="w-8 h-8 text-primary" />
+          </div>
+          <motion.div
+            className="absolute -inset-2 rounded-full border border-primary/20"
+            animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0, 0.4] }}
+            transition={{ duration: 2.5, repeat: Infinity }}
           />
-          <Button type="submit" size="icon" disabled={!input.trim() || isSending} className="shrink-0">
-            <Send className="w-4 h-4" />
+        </motion.div>
+
+        <div className="text-center space-y-2 max-w-xs">
+          <h3 className="font-mono text-lg text-foreground">
+            Chat on Telegram
+          </h3>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Message the <span className="text-primary font-mono">GeneClaw Vienna</span> bot
+            directly on Telegram for real-time AI conversations.
+          </p>
+        </div>
+
+        <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+          <Button
+            asChild
+            size="lg"
+            className="gap-2 font-mono glow-green"
+          >
+            <a href={TELEGRAM_BOT_URL} target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+              </svg>
+              Open in Telegram
+              <ExternalLink className="w-4 h-4" />
+            </a>
           </Button>
-        </form>
+        </motion.div>
+
+        <p className="text-xs text-muted-foreground/60 font-mono">
+          @geneclaw_vienna_bot
+        </p>
       </div>
     </div>
   );
