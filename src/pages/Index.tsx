@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { MessageSquare, Mic } from "lucide-react";
-import OpenClawLogo from "@/components/OpenClawLogo";
+import { MessageSquare, Mic, User, Dna } from "lucide-react";
+import geneClawLogo from "@/assets/geneclaw-logo.png";
 import TelegramChat from "@/components/TelegramChat";
 import VoiceAgent from "@/components/VoiceAgent";
+import RecentReports from "@/components/RecentReports";
+import SymptomsMenu from "@/components/SymptomsMenu";
 
 type Mode = "chat" | "voice";
 
@@ -19,81 +21,123 @@ const Index = () => {
       </div>
 
       {/* Header */}
-      <header className="relative z-10 flex items-center justify-between px-6 py-4 border-b border-border/50">
+      <header className="relative z-10 flex items-center justify-between px-6 py-3 border-b border-border/50">
         <div className="flex items-center gap-3">
-          <OpenClawLogo size={36} />
+          <img src={geneClawLogo} alt="GeneClaw" className="h-10 w-10 object-contain" />
           <span className="font-mono text-lg tracking-tight">
-            <span className="text-primary text-glow">Gene</span>
-            <span className="text-foreground">Claw</span>
+            <span className="text-primary text-glow font-bold">Gene</span>
+            <span className="text-foreground font-bold">Claw</span>
           </span>
         </div>
-        <div className="flex items-center gap-1 bg-secondary rounded-full p-1">
-          <button
-            onClick={() => setMode("chat")}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-mono transition-all ${
-              mode === "chat"
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <MessageSquare className="w-4 h-4" />
-            Chat
-          </button>
-          <button
-            onClick={() => setMode("voice")}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-mono transition-all ${
-              mode === "voice"
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Mic className="w-4 h-4" />
-            Voice
-          </button>
+
+        {/* User persona */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1 bg-secondary rounded-full p-1">
+            <button
+              onClick={() => setMode("chat")}
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-mono transition-all ${
+                mode === "chat"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <MessageSquare className="w-4 h-4" />
+              Chat
+            </button>
+            <button
+              onClick={() => setMode("voice")}
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-mono transition-all ${
+                mode === "voice"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Mic className="w-4 h-4" />
+              Voice
+            </button>
+          </div>
+          <div className="flex items-center gap-2 pl-3 border-l border-border/50">
+            <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center">
+              <User className="w-4 h-4 text-primary" />
+            </div>
+            <div className="hidden sm:block">
+              <p className="text-xs font-mono text-foreground leading-none">Sara</p>
+              <p className="text-[10px] text-muted-foreground font-mono">Patient Demo</p>
+            </div>
+          </div>
         </div>
       </header>
 
-      {/* Main content */}
-      <main className="relative z-10 flex-1 flex items-center justify-center p-6">
+      {/* Welcome banner */}
+      <div className="relative z-10 px-6 pt-5 pb-2">
         <motion.div
-          key={mode}
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="w-full max-w-lg"
+          className="flex items-center gap-3"
         >
-          {mode === "chat" ? (
-            <div className="space-y-4">
-              <div className="text-center space-y-1">
-                <h1 className="text-2xl font-mono text-foreground">
-                  Chat with <span className="text-primary text-glow">OpenClaw</span>
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  Powered by Telegram • Ask anything
-                </p>
-              </div>
-              <TelegramChat />
-            </div>
-          ) : (
-            <div className="space-y-8">
-              <div className="text-center space-y-1">
-                <h1 className="text-2xl font-mono text-foreground">
-                  Talk to <span className="text-primary text-glow">OpenClaw</span>
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  Powered by ElevenLabs • Real-time voice
-                </p>
-              </div>
-              <VoiceAgent />
-            </div>
-          )}
+          <Dna className="w-5 h-5 text-primary" />
+          <div>
+            <h1 className="text-lg font-mono text-foreground">
+              Welcome back, <span className="text-primary text-glow">Sara</span>
+            </h1>
+            <p className="text-xs text-muted-foreground font-mono">
+              Your genetic health dashboard • Last updated Mar 22, 2026
+            </p>
+          </div>
         </motion.div>
+      </div>
+
+      {/* Main content */}
+      <main className="relative z-10 flex-1 px-6 py-4 overflow-y-auto">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-4">
+          {/* Left column — Reports & Symptoms */}
+          <div className="lg:col-span-3 space-y-4">
+            <RecentReports />
+            <SymptomsMenu />
+          </div>
+
+          {/* Right column — Chat / Voice */}
+          <div className="lg:col-span-2">
+            <motion.div
+              key={mode}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              {mode === "chat" ? (
+                <div className="space-y-3">
+                  <div className="text-center space-y-1">
+                    <h2 className="text-base font-mono text-foreground">
+                      Ask <span className="text-primary text-glow">GeneClaw</span>
+                    </h2>
+                    <p className="text-xs text-muted-foreground">
+                      Powered by Telegram • Genetic AI Assistant
+                    </p>
+                  </div>
+                  <TelegramChat />
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="text-center space-y-1">
+                    <h2 className="text-base font-mono text-foreground">
+                      Talk to <span className="text-primary text-glow">GeneClaw</span>
+                    </h2>
+                    <p className="text-xs text-muted-foreground">
+                      Powered by ElevenLabs • Real-time voice
+                    </p>
+                  </div>
+                  <VoiceAgent />
+                </div>
+              )}
+            </motion.div>
+          </div>
+        </div>
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 text-center py-4 border-t border-border/50">
+      <footer className="relative z-10 text-center py-3 border-t border-border/50">
         <p className="text-xs font-mono text-muted-foreground">
-          GeneClaw © {new Date().getFullYear()} • OpenClaw Agent
+          GeneClaw © {new Date().getFullYear()} • Genetic Health AI Agent • Hackathon Demo
         </p>
       </footer>
     </div>
