@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { MessageSquare, Mic, User, Dna } from "lucide-react";
+import { Mic, User, Dna, ChevronDown, ChevronUp } from "lucide-react";
 import geneClawLogo from "@/assets/geneclaw-logo.png";
 import geneClawTitle from "@/assets/geneclaw-title.png";
 import TelegramChat from "@/components/TelegramChat";
@@ -8,10 +8,8 @@ import VoiceAgent from "@/components/VoiceAgent";
 import RecentReports from "@/components/RecentReports";
 import SymptomsMenu from "@/components/SymptomsMenu";
 
-type Mode = "chat" | "voice";
-
 const Index = () => {
-  const [mode, setMode] = useState<Mode>("chat");
+  const [showSummary, setShowSummary] = useState(false);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
@@ -28,32 +26,14 @@ const Index = () => {
           <img src={geneClawTitle} alt="GeneClaw" className="h-8 object-contain" />
         </div>
 
-        {/* User persona */}
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1 bg-secondary rounded-full p-1">
-            <button
-              onClick={() => setMode("chat")}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-mono transition-all ${
-                mode === "chat"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <MessageSquare className="w-4 h-4" />
-              Chat
-            </button>
-            <button
-              onClick={() => setMode("voice")}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-mono transition-all ${
-                mode === "voice"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Mic className="w-4 h-4" />
-              Voice
-            </button>
-          </div>
+          <button
+            onClick={() => setShowSummary(!showSummary)}
+            className="flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-mono bg-secondary text-muted-foreground hover:text-foreground transition-all"
+          >
+            {showSummary ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            Reports & Symptoms
+          </button>
           <div className="flex items-center gap-2 pl-3 border-l border-border/50">
             <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center">
               <User className="w-4 h-4 text-primary" />
@@ -85,50 +65,61 @@ const Index = () => {
         </motion.div>
       </div>
 
-      {/* Main content */}
-      <main className="relative z-10 flex-1 px-6 py-4 overflow-y-auto">
-        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-4">
-          {/* Left column — Reports & Symptoms */}
-          <div className="lg:col-span-3 space-y-4">
+      {/* Collapsible Reports & Symptoms */}
+      {showSummary && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          className="relative z-10 px-6 pb-4"
+        >
+          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
             <RecentReports />
             <SymptomsMenu />
           </div>
+        </motion.div>
+      )}
 
-          {/* Right column — Chat / Voice */}
-          <div className="lg:col-span-2">
-            <motion.div
-              key={mode}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25 }}
-            >
-              {mode === "chat" ? (
-                <div className="space-y-3">
-                  <div className="text-center space-y-1">
-                    <h2 className="text-base font-mono text-foreground">
-                      Ask <span className="text-primary text-glow">GeneClaw</span>
-                    </h2>
-                    <p className="text-xs text-muted-foreground">
-                      Powered by Telegram • Genetic AI Assistant
-                    </p>
-                  </div>
-                  <TelegramChat />
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  <div className="text-center space-y-1">
-                    <h2 className="text-base font-mono text-foreground">
-                      Talk to <span className="text-primary text-glow">GeneClaw</span>
-                    </h2>
-                    <p className="text-xs text-muted-foreground">
-                      Powered by ElevenLabs • Real-time voice
-                    </p>
-                  </div>
-                  <VoiceAgent />
-                </div>
-              )}
-            </motion.div>
-          </div>
+      {/* Main content — Voice & Chat side by side */}
+      <main className="relative z-10 flex-1 px-6 py-4 overflow-y-auto">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Voice Agent */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+            className="space-y-3"
+          >
+            <div className="text-center space-y-1">
+              <h2 className="text-base font-mono text-foreground">
+                Talk to <span className="text-primary text-glow">GeneClaw</span>
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Powered by ElevenLabs • Real-time voice
+              </p>
+            </div>
+            <div className="rounded-xl border border-border bg-card p-6 flex items-center justify-center min-h-[420px]">
+              <VoiceAgent />
+            </div>
+          </motion.div>
+
+          {/* Telegram Chat */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, delay: 0.1 }}
+            className="space-y-3"
+          >
+            <div className="text-center space-y-1">
+              <h2 className="text-base font-mono text-foreground">
+                Ask <span className="text-primary text-glow">GeneClaw</span>
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Powered by Telegram • Genetic AI Assistant
+              </p>
+            </div>
+            <TelegramChat />
+          </motion.div>
         </div>
       </main>
 
