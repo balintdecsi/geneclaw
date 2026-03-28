@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Mic, MicOff, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const AGENT_ID = "YOUR_AGENT_ID"; // Replace with your ElevenLabs Agent ID
+const AGENT_ID = "agent_6801kms2bkjqe6xtznzbhcmaz5z2";
 
 const VoiceAgent = () => {
   const [isConnecting, setIsConnecting] = useState(false);
