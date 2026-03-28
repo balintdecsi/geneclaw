@@ -129,7 +129,7 @@ const Index = () => {
           Made with ❤️ from Vienna • GeneClaw © {new Date().getFullYear()}
         </p>
         <a
-          href="https://github.com/ArslanKamchyworthy/GeneClaw"
+          href="https://github.com/balintdecsi/geneclaw"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-primary transition-colors"
