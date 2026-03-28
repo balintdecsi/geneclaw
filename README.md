@@ -16,10 +16,11 @@
 
 ## Hackathon submission overview
 
-GeneClaw ties together four integration tracks:
+GeneClaw ties together five integration tracks:
 
 | Track | What it does |
 |-------|----------------|
+| **[Geno Health Portal](https://github.com/negarl/geno-health-portal)** | Companion project where we implemented the **first crawl** of the target genetics / health reporting websites. **Source:** [github.com/negarl/geno-health-portal](https://github.com/negarl/geno-health-portal). **GeneClaw talks to this site** (demo portal + credentials flow); see below. |
 | **[Lovable](https://lovable.dev/)** | UI and full-stack scaffolding (Vite, React, shadcn/ui), Git sync, and the hosted **Telegram connector** used by our Edge Function. |
 | **[Maritime](https://maritime.sh/docs) + OpenClaw** | Long-running **OpenClaw** agent with repo-backed **skills**, **cron**-driven round reminders, and operator visibility in the Maritime dashboard. Assets live in [`openclaw/`](openclaw/README.md). |
 | **[ElevenLabs](https://elevenlabs.io/)** | **Conversational AI** voice session (WebRTC) with an animated in-app “orb” agent. |
@@ -29,9 +30,16 @@ GeneClaw ties together four integration tracks:
 
 ---
 
+## Geno Health Portal and first crawl
+
+- **Crawl implementation** lives in a separate repository: **[negarl/geno-health-portal](https://github.com/negarl/geno-health-portal)**. That project covers the **initial crawl** of the websites we target for genetics / health report flows.
+- **GeneClaw integrates with that portal:** end users sign in against the demo site (see the in-app and Telegram links to `geno-health-portal.lovable.app` and demo credentials). The broader multimodal agent story (voice + Telegram + OpenClaw onboarding) assumes report pages and auth context from that stack.
+
+---
+
 ## Features
 
-- **Dashboard** — Genetic-health style home, reports/symptoms panels, deep link to a demo genetics portal (see in-app Telegram card).
+- **Dashboard** — Genetic-health style home, reports/symptoms panels, deep link to the **[Geno Health Portal](https://github.com/negarl/geno-health-portal)**–backed demo (`geno-health-portal.lovable.app`; see in-app Telegram card).
 - **Voice (ElevenLabs)** — Start/stop conversation with the bundled ElevenLabs React SDK; microphone permission required.
 - **Telegram** — In-app CTA opens the Vienna bot; backend uses `telegram-chat` function for `send` / `getUpdates` patterns.
 - **OpenClaw / Maritime** — Markdown skills (`openclaw/skills/…`) describe the symptom follow-up workflow; scheduled runs update per-user JSON under `data/symptom-users/` and appear in Maritime-style run logs (see [`openclaw/README.md`](openclaw/README.md)).
@@ -40,6 +48,7 @@ GeneClaw ties together four integration tracks:
 
 ## Tech stack
 
+- **Companion (crawl / portal):** [Geno Health Portal](https://github.com/negarl/geno-health-portal) (not in this repo; GeneClaw consumes the live portal)  
 - **Frontend:** React 18, TypeScript, Vite 5, Tailwind CSS, shadcn/ui, Framer Motion  
 - **Backend:** Supabase (client + Edge Functions on Deno)  
 - **Voice:** `@elevenlabs/react` (`ConversationProvider` in `src/App.tsx`)  
@@ -150,4 +159,6 @@ Secrets are configured in the **Supabase dashboard** (or CLI) for the deployed f
 
 ## License / credits
 
-Built as a **hackathon submission**. Stack credits: Lovable, Supabase, ElevenLabs, Maritime/OpenClaw ecosystem as described above.
+This project is licensed under the **MIT License** — see [`LICENSE`](LICENSE).
+
+Built as a **hackathon submission**. Companion **crawl + portal** work: [github.com/negarl/geno-health-portal](https://github.com/negarl/geno-health-portal). Stack credits: Lovable, Supabase, ElevenLabs, Maritime/OpenClaw ecosystem as described above.

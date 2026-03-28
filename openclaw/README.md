@@ -76,4 +76,4 @@ Paths like `/home/node/.openclaw/workspace/` reflect the deployed OpenClaw works
 
 ## Product context
 
-GeneClaw combines genetic risk context with longitudinal symptom check-ins over Telegram. The skill encodes **non-diagnostic** screening behavior, **emergency red-flag** handling, and **Austria/Vienna** specialist lookup guidance (e.g. DocFinder, specialty names in German).
+GeneClaw combines genetic risk context with longitudinal symptom check-ins over Telegram. Onboarding in the skill references a **genetics test website**; our **first crawl** and portal implementation live in the companion repo **[github.com/negarl/geno-health-portal](https://github.com/negarl/geno-health-portal)**, which GeneClaw integrates with in the demo (report pages + credentials). The skill encodes **non-diagnostic** screening behavior, **emergency red-flag** handling, and **Austria/Vienna** specialist lookup guidance (e.g. DocFinder, specialty names in German).
